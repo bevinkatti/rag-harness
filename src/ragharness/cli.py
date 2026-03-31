@@ -4,7 +4,7 @@ from rich.console import Console
 from rich.table import Table
 
 from .compare import compare_models
-from .runner import evaluate
+from .runner import evaluate as run_evaluate
 
 app = typer.Typer(help="⚡ RAG Harness CLI", invoke_without_command=True)
 console = Console()
@@ -20,13 +20,23 @@ def main():
 # EVALUATE COMMAND
 # -------------------------------
 @app.command()
-def evaluate_cmd(
-    dataset: Path = typer.Argument(..., exists=True, help="Dataset file"),
-    predictions: Path = typer.Argument(..., exists=True, help="Predictions file"),
+def evaluate(
+    predictions: Path = typer.Argument(
+        ...,
+        exists=True,
+        help="Predictions file"
+    ),
+    dataset: Path = typer.Option(
+        None,
+        exists=True,
+        help="Optional dataset file"
+    ),
 ):
     """Evaluate a RAG system"""
 
-    rows, agg = evaluate(dataset, predictions)
+    rows, agg = run_evaluate(dataset, predictions)
+    if dataset is None:
+        console.print("[yellow] No dataset → limited metric Evaluation [/yellow]\n")
 
     # 🔹 Main Evaluation Table
     table = Table(title="📊 RAG Evaluation Summary", show_lines=True)
@@ -53,8 +63,6 @@ def evaluate_cmd(
     console.print(ragas_table)
 
 
-# alias → allows `rag-harness evaluate`
-app.command(name="evaluate")(evaluate_cmd)
 
 # -------------------------------
 # COMPARE COMMAND (ADD HERE)

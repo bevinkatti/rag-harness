@@ -59,6 +59,60 @@ def load_dataset(path: Path) -> list[Example]:
     ]
 
 
+def detect_format(row: dict):
+    if "result" in row and "source_documents" in row:
+        return "langchain"
+
+    if "response" in row and "contexts" in row:
+        return "llamaindex"
+
+    if "answer" in row:
+        return "standard"
+
+    return "generic"
+
+
+def convert_row(row: dict, idx: int):
+    fmt = detect_format(row)
+
+    id_val = str(row.get("id", idx))
+
+    # LangChain
+    if fmt == "langchain":
+        return {
+            "id": id_val,
+            "answer": row.get("result", ""),
+            "contexts": [
+                doc.get("page_content", "")
+                for doc in row.get("source_documents", [])
+                if isinstance(doc, dict)
+            ],
+        }
+
+    # LlamaIndex
+    if fmt == "llamaindex":
+        return {
+            "id": id_val,
+            "answer": row.get("response", ""),
+            "contexts": row.get("contexts", []),
+        }
+
+    # Standard
+    if fmt == "standard":
+        return {
+            "id": id_val,
+            "answer": row.get("answer", ""),
+            "contexts": row.get("contexts", []),
+        }
+
+    # Generic fallback (🔥 important)
+    return {
+        "id": id_val,
+        "answer": row.get("answer") or row.get("result") or row.get("response", ""),
+        "contexts": row.get("contexts") or row.get("documents") or [],
+    }
+
+
 def load_predictions(path: Path) -> list[Prediction]:
     suffix = path.suffix.lower()
 
@@ -71,11 +125,17 @@ def load_predictions(path: Path) -> list[Prediction]:
     else:
         raise ValueError("Unsupported format")
 
-    return [
-        Prediction(
-            id=str(r["id"]),
-            answer=r["answer"],
-            contexts=_parse_contexts(r.get("contexts")),
+    predictions = []
+
+    for idx, row in enumerate(rows):
+        converted = convert_row(row, idx)
+
+        predictions.append(
+            Prediction(
+                id=converted["id"],
+                answer=converted["answer"],
+                contexts=converted["contexts"],
+            )
         )
-        for r in rows
-    ]
+
+    return predictions

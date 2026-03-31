@@ -1,10 +1,16 @@
 # ⚡ RAG Harness
 
-> The fastest way to evaluate and compare RAG systems from your terminal.
+> The fastest way to evaluate and compare RAG systems from your terminal.  
 
+[![PyPI version](https://img.shields.io/pypi/v/rag-harness.svg)](https://pypi.org/project/rag-harness/)
 [![Python](https://img.shields.io/badge/python-3.10+-blue)]()
 [![License](https://img.shields.io/badge/license-MIT-green)]()
-[![CLI](https://img.shields.io/badge/interface-CLI-black)]()
+[![CLI](https://img.shields.io/badge/interface-CLI-black)]()  
+## 📦 Install
+
+```bash
+pip install rag-harness
+```
 
 ---
 

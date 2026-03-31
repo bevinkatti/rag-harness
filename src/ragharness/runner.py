@@ -5,9 +5,12 @@ from .metrics import exact_match, f1_score, context_precision, context_recall, r
 from .models import ExampleScore, AggregateScore
 
 
-def evaluate(dataset_path: Path, predictions_path: Path):
-    dataset = load_dataset(dataset_path)
+def evaluate(dataset_path: Path | None, predictions_path: Path):
     predictions = load_predictions(predictions_path)
+    if dataset_path is not None:
+        dataset = load_dataset(dataset_path)
+    else:
+        dataset = []
 
     pred_map = {p.id: p for p in predictions}
 
@@ -43,7 +46,18 @@ def evaluate(dataset_path: Path, predictions_path: Path):
                 missing=False,
             )
         )
-
+    if not dataset:
+        return [], AggregateScore(
+            total=len(predictions),
+            matched=0,
+            missing=0,
+            exact_match=0.0,
+            f1=0.0,
+            context_precision=0.0,
+            context_recall=0.0,
+            ragas_score=0.0,
+        )
+    
     total = len(rows)
     matched = sum(1 for r in rows if not r.missing)
     missing = total - matched
