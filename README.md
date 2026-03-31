@@ -1,0 +1,120 @@
+# ⚡ RAG Harness
+
+> The fastest way to evaluate and compare RAG systems from your terminal.
+
+[![Python](https://img.shields.io/badge/python-3.10+-blue)]()
+[![License](https://img.shields.io/badge/license-MIT-green)]()
+[![CLI](https://img.shields.io/badge/interface-CLI-black)]()
+
+---
+
+## 🚀 Why this exists
+
+Evaluating RAG systems is messy.
+
+- Different metrics everywhere  
+- No standard CLI tools  
+- Hard to compare models  
+
+👉 **RAG Harness fixes that.**  
+## 🎥 Demo
+
+![Demo](docs/demo.gif)
+
+---
+
+## 🔥 Features
+
+- ⚡ One-command RAG evaluation
+- 📊 Exact Match + F1 + Context metrics
+- 🧠 RAGAS-style scoring (no API required)
+- ⚔️ Compare multiple RAG systems
+- 📁 Works with JSONL / JSON / CSV
+
+
+---
+
+## ⚡ Quick Start
+
+```bash
+git clone https://github.com/yourname/rag-harness.git
+cd rag-harness
+python -m venv .venv
+.\.venv\Scripts\activate
+pip install -e .  
+```  
+## ▶️ Run Evaluation
+
+```bash
+rag-harness evaluate examples/dataset.jsonl examples/predictions_a.jsonl
+```
+
+### Output
+
+```
+📊 RAG Evaluation Summary
+
+Exact Match        0.5000
+F1 Score           0.8333
+Context Precision  1.0000
+Context Recall     1.0000
+
+🧠 RAGAS Score     0.9000
+```
+
+---
+
+## ⚔️ Compare Systems
+
+```bash
+rag-harness compare examples/dataset.jsonl examples/predictions_a.jsonl examples/predictions_b.jsonl
+```
+
+### Output
+
+```
+⚔️ RAG Systems Comparison
+
+Metric              A        B
+--------------------------------
+Exact Match         0.50     0.00
+F1 Score            0.83     0.00
+RAGAS Score         0.90     0.00
+
+🏆 System A wins
+```
+
+---
+
+## 📁 Dataset Format
+
+### Dataset
+
+```json
+{"id":"1","question":"Who wrote Hamlet?","answer":"William Shakespeare","contexts":["William Shakespeare wrote Hamlet."]}
+```
+
+### Predictions
+
+```json
+{"id":"1","answer":"Shakespeare","contexts":["William Shakespeare wrote Hamlet."]}
+```
+
+---
+
+## 🧠 RAGAS-style Scoring
+
+We provide a lightweight RAGAS-inspired score:
+
+```
+RAGAS = 0.6 * F1 + 0.4 * Context Recall
+```
+
+* No API keys required
+* Fast and deterministic
+* Extendable to real RAGAS later
+
+---
+
+## 🤝 Contributing  
+PRs, Ideas, Improvements welcome.
