@@ -197,8 +197,6 @@ RAGAS Score   0.72   0.51
 ## 🚧 Roadmap
 
 * [ ] LLM-based evaluation (user-provided API key)
-* [ ] Per-question analysis
-* [ ] HTML reports
 * [ ] Leaderboard mode
 
 ---
@@ -211,7 +209,7 @@ PRs, ideas, and improvements are welcome!
 
 ## 👨‍💻 Author
 
-Built by Abhishek — focused on practical AI tooling for real-world systems.
+Built by Abhishek Bevinkatti 
 
 ---
 
