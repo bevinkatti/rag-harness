@@ -61,15 +61,8 @@ A score of **~0.5** in RAG Harness often corresponds to **reasonably good semant
 
 ---
 
-## ⚡ Quick Start
 
-```bash
-rag-harness evaluate output.json
-```
-
----
-
-## ▶️ Run Evaluation
+## ▶️ Run Evaluation ⚡ 
 
 ### 1. Evaluate predictions only
 
