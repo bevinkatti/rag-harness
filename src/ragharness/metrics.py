@@ -1,14 +1,33 @@
 import re
 from collections import Counter
 
+import re
+from rapidfuzz.fuzz import ratio
+from rapidfuzz.fuzz import token_set_ratio
 
 # ---------- TEXT NORMALIZATION ----------
 def normalize(text: str) -> str:
     text = text.lower().strip()
     text = re.sub(r"[^a-z0-9\s]", " ", text)
-    text = re.sub(r"\b(a|an|the)\b", " ", text)
+    #text = re.sub(r"\b(a|an|the)\b", " ", text)
     text = re.sub(r"\s+", " ", text)
     return text.strip()
+
+
+def fuzzy_score(pred: str, gt: str) -> float:
+    if not pred or not gt:
+        return 0.0
+
+    pred_n = normalize(pred)
+    gt_n = normalize(gt)
+
+    base = token_set_ratio(pred_n, gt_n) / 100.0
+
+    # 🔥 Boost if one contains the other (handles verbosity)
+    if gt_n in pred_n or pred_n in gt_n:
+        base = max(base, 0.85)
+
+    return base
 
 
 # ---------- EXACT MATCH ----------
@@ -67,15 +86,25 @@ def context_recall(pred_ctx: list[str], gold_ctx: list[str]) -> float:
     overlap = len(pred_set & gold_set)
     return overlap / len(gold_set)
 
-def ragas_score(pred: str, gold: str, pred_ctx: list[str], gold_ctx: list[str]) -> float:
-    """
-    Lightweight RAGAS-style score
-    Combines:
-    - Answer F1
-    - Context Recall
-    """
+def ragas_score(pred: str, gt: str, pred_ctx: list[str], gt_ctx: list[str]) -> float:
+    f1 = f1_score(pred, gt)
+    fuzzy = fuzzy_score(pred, gt)
+    recall = context_recall(pred_ctx, gt_ctx)
 
-    f1 = f1_score(pred, gold)
-    cr = context_recall(pred_ctx, gold_ctx)
+    # ✅ Smart detection
+    has_context = len(pred_ctx) > 0 and len(gt_ctx) > 0
 
-    return round((f1 * 0.6 + cr * 0.4), 4)
+    if has_context:
+        score = 0.4 * f1 + 0.4 * fuzzy + 0.2 * recall
+    else:
+        score = 0.3 * f1 + 0.8 * fuzzy
+
+    # 🔥Length-aware adjustment
+    pred_len = len(pred.split())
+    gt_len = len(gt.split())
+
+    if pred_len > 0 and gt_len > 0:
+        length_ratio = min(pred_len, gt_len) / max(pred_len, gt_len)
+        score = score * (0.8 + 0.2 * length_ratio)
+
+    return round(score, 4)

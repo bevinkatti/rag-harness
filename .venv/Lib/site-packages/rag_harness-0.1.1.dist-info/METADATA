@@ -1,6 +1,6 @@
 Metadata-Version: 2.4
 Name: rag-harness
-Version: 0.1.0
+Version: 0.1.1
 Summary: ⚡ CLI tool to evaluate and compare RAG systems.
 Author: Abhishek Bevinkatti
 License: MIT
@@ -11,6 +11,7 @@ Description-Content-Type: text/markdown
 License-File: LICENSE
 Requires-Dist: typer>=0.12.3
 Requires-Dist: rich>=13.7.1
+Requires-Dist: rapidfuzz>=3.0.0
 Provides-Extra: dev
 Requires-Dist: pytest; extra == "dev"
 Dynamic: license-file
@@ -43,6 +44,12 @@ Evaluating RAG systems is messy.
 ## 🎥 Demo
 
 ![Demo](docs/demo.gif)
+
+## ✨ Latest Update (v0.1.1)
+
+- Auto-detect & convert RAG outputs (LangChain, LlamaIndex, custom JSON)
+- Optional dataset support
+- Improved CLI UX
 
 ---
 

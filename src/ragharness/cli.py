@@ -1,8 +1,9 @@
 import typer
+
 from pathlib import Path
 from rich.console import Console
 from rich.table import Table
-
+from .io import load_predictions
 from .compare import compare_models
 from .runner import evaluate as run_evaluate
 
@@ -35,8 +36,27 @@ def evaluate(
     """Evaluate a RAG system"""
 
     rows, agg = run_evaluate(dataset, predictions)
-    if dataset is None:
-        console.print("[yellow] No dataset → limited metric Evaluation [/yellow]\n")
+    predictions_data = load_predictions(predictions)
+    
+    # ✅ Case 1: user provided dataset
+    if dataset is not None:
+        console.print("[green]dataset Present → running full evaluation[/green]\n")
+        pass  # full evaluation
+
+    # ✅ Case 2: auto ground truth detected
+    elif any(getattr(p, "ground_truth", "") for p in predictions_data):
+        console.print("[cyan]Auto-detected ground truth → running full evaluation[/cyan]\n")
+
+    # ⚠️ Case 3: no ground truth at all
+    elif all(not getattr(p, "ground_truth", "") for p in predictions_data):
+        console.print(
+            "[cyan]⚠ No ground truth found → cannot evaluate answers[/cyan]\n"
+            "[yellow]👉 Provide --dataset or include 'ground_truth' in your file[/yellow]\n"
+        )
+
+    # ⚠️ Case 4: fallback
+    else:
+        console.print("[yellow]⚠ Running limited evaluation[/yellow]\n")
 
     # 🔹 Main Evaluation Table
     table = Table(title="📊 RAG Evaluation Summary", show_lines=True)
@@ -51,6 +71,7 @@ def evaluate(
     table.add_row("F1 Score", f"{agg.f1:.4f}")
     table.add_row("Context Precision", f"{agg.context_precision:.4f}")
     table.add_row("Context Recall", f"{agg.context_recall:.4f}")
+    table.add_row("Fuzzy Score", f"{agg.fuzzy:.4f}")
 
     console.print(table)
 

@@ -73,43 +73,67 @@ def detect_format(row: dict):
 
 
 def convert_row(row: dict, idx: int):
-    fmt = detect_format(row)
+    id_val = str(row.get("id") or row.get("question_id") or idx)
 
-    id_val = str(row.get("id", idx))
+    # 🔥 Detect answer
+    answer = (
+        row.get("answer")
+        or row.get("generated_answer")
+        or row.get("result")
+        or row.get("response")
+        or ""
+    )
 
-    # LangChain
-    if fmt == "langchain":
-        return {
-            "id": id_val,
-            "answer": row.get("result", ""),
-            "contexts": [
-                doc.get("page_content", "")
-                for doc in row.get("source_documents", [])
-                if isinstance(doc, dict)
-            ],
-        }
+    # 🔥 Detect ground truth
+    ground_truth = (
+        row.get("ground_truth")
+        or row.get("answer_gt")
+        or row.get("expected_answer")
+        or ""
+    )
 
-    # LlamaIndex
-    if fmt == "llamaindex":
-        return {
-            "id": id_val,
-            "answer": row.get("response", ""),
-            "contexts": row.get("contexts", []),
-        }
+    # 🔥 Detect contexts
+    context_candidates = [
+        "contexts",
+        "context",
+        "documents",
+        "retrieved_docs",
+        "retrieved_documents",
+        "source_documents",
+        "chunks",
+        "sources",
+        "docs",
+    ]
 
-    # Standard
-    if fmt == "standard":
-        return {
-            "id": id_val,
-            "answer": row.get("answer", ""),
-            "contexts": row.get("contexts", []),
-        }
+    contexts = []
 
-    # Generic fallback (🔥 important)
+    for key in context_candidates:
+        if key in row and row[key]:
+            val = row[key]
+
+            if isinstance(val, list):
+                for v in val:
+                    if isinstance(v, str):
+                        contexts.append(v.strip())
+                    elif isinstance(v, dict):
+                        contexts.append(
+                            v.get("page_content")
+                            or v.get("text")
+                            or str(v)
+                        )
+
+            elif isinstance(val, str):
+                contexts.extend([x.strip() for x in val.split("||")])
+
+    # 🔥 Clean contexts
+    contexts = [c for c in contexts if c]
+    contexts = list(dict.fromkeys(contexts))
+
     return {
         "id": id_val,
-        "answer": row.get("answer") or row.get("result") or row.get("response", ""),
-        "contexts": row.get("contexts") or row.get("documents") or [],
+        "answer": answer,
+        "contexts": contexts,
+        "ground_truth": ground_truth,
     }
 
 
@@ -118,10 +142,24 @@ def load_predictions(path: Path) -> list[Prediction]:
 
     if suffix == ".jsonl":
         rows = load_jsonl(path)
+        
     elif suffix == ".json":
-        rows = json.load(open(path))
+        data = json.load(open(path))
+
+        # 🔥 Handle benchmark_report.json format
+        if isinstance(data, dict) and "questions" in data:
+            rows = data["questions"]
+
+        # Normal list of dicts
+        elif isinstance(data, list):
+            rows = data
+        else:
+            raise ValueError("Unsupported JSON format")
+    
+        
     elif suffix == ".csv":
         rows = list(csv.DictReader(open(path)))
+    
     else:
         raise ValueError("Unsupported format")
 
@@ -135,6 +173,7 @@ def load_predictions(path: Path) -> list[Prediction]:
                 id=converted["id"],
                 answer=converted["answer"],
                 contexts=converted["contexts"],
+                ground_truth=converted.get("ground_truth", ""),
             )
         )
 

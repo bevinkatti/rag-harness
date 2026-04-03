@@ -1,8 +1,8 @@
 from pathlib import Path
 
 from .io import load_dataset, load_predictions
-from .metrics import exact_match, f1_score, context_precision, context_recall, ragas_score
-from .models import ExampleScore, AggregateScore
+from .metrics import exact_match, f1_score, context_precision, context_recall, ragas_score, fuzzy_score
+from .models import Example, ExampleScore, AggregateScore
 
 
 def evaluate(dataset_path: Path | None, predictions_path: Path):
@@ -11,6 +11,20 @@ def evaluate(dataset_path: Path | None, predictions_path: Path):
         dataset = load_dataset(dataset_path)
     else:
         dataset = []
+        
+        if predictions and predictions[0].ground_truth:
+            
+            dataset = [
+                
+                Example(
+                    id=p.id,
+                    question="",
+                    answer=p.ground_truth,
+                    contexts=[]
+                )
+
+                for p in predictions
+            ]
 
     pred_map = {p.id: p for p in predictions}
 
@@ -33,6 +47,8 @@ def evaluate(dataset_path: Path | None, predictions_path: Path):
             )
             continue
 
+        fuzzy = fuzzy_score(pred.answer, ex.answer)
+        #print("FUZZY DEBUG:", fuzzy) 
         ragas = ragas_score(pred.answer, ex.answer, pred.contexts, ex.contexts)
         
         rows.append(
@@ -43,6 +59,7 @@ def evaluate(dataset_path: Path | None, predictions_path: Path):
                 context_precision=context_precision(pred.contexts, ex.contexts),
                 context_recall=context_recall(pred.contexts, ex.contexts),
                 ragas_score=ragas,
+                fuzzy=fuzzy,
                 missing=False,
             )
         )
@@ -56,6 +73,7 @@ def evaluate(dataset_path: Path | None, predictions_path: Path):
             context_precision=0.0,
             context_recall=0.0,
             ragas_score=0.0,
+            fuzzy=0.0,
         )
     
     total = len(rows)
@@ -74,6 +92,7 @@ def evaluate(dataset_path: Path | None, predictions_path: Path):
         context_precision=avg([r.context_precision for r in rows]),
         context_recall=avg([r.context_recall for r in rows]),
         ragas_score=avg([r.ragas_score for r in rows]),
+        fuzzy=avg([r.fuzzy for r in rows]),
     )
 
     return rows, aggregate

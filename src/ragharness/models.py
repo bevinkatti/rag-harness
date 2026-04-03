@@ -17,6 +17,7 @@ class Prediction:
     answer: str
     contexts: list[str] = field(default_factory=list)
     metadata: dict[str, Any] = field(default_factory=dict)
+    ground_truth: str = ""
 
 
 @dataclass
@@ -28,6 +29,8 @@ class ExampleScore:
     context_recall: float
     missing: bool = False
     ragas_score: float = 0.0
+    fuzzy: float = 0.0
+    
 
 
 @dataclass
@@ -40,3 +43,4 @@ class AggregateScore:
     context_precision: float
     context_recall: float
     ragas_score: float
+    fuzzy: float = 0.0
