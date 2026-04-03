@@ -21,7 +21,7 @@ Evaluating RAG systems is messy.
 👉 **RAG Harness fixes that.**
 
 **Just give your model output → get evaluation instantly.**
-
+  
 ---
 
 ## 📦 Install
@@ -29,12 +29,23 @@ Evaluating RAG systems is messy.
 ```bash
 pip install rag-harness
 ```
+## 📊 Score Interpretation Guide
+RAG Harness uses deterministic scoring, which is typically **stricter than LLM-based evaluation**.
+### ⚠️ Note
+
+- Scores may appear lower than LLM-based evaluators  
+- Deterministic scoring is stricter and reproducible  
+- LLM-based evaluation may give higher scores due to semantic reasoning  
+
+👉 Example:
+
+A score of **~0.5** in RAG Harness often corresponds to **reasonably good semantic answers**, even if not perfectly aligned token-wise.
 
 ---
 
 ## 🎥 Demo
 
-![Demo](docs/demo.gif)
+![Demo](demo_files/demo-vid.gif)
 
 ---
 

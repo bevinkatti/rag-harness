@@ -1,6 +1,6 @@
 Metadata-Version: 2.4
 Name: rag-harness
-Version: 0.1.1
+Version: 0.1.2
 Summary: ⚡ CLI tool to evaluate and compare RAG systems.
 Author: Abhishek Bevinkatti
 License: MIT
@@ -18,12 +18,30 @@ Dynamic: license-file
 
 # ⚡ RAG Harness
 
-> The fastest way to evaluate and compare RAG systems from your terminal.  
+> Evaluate any RAG system in seconds — no strict format.
 
 [![PyPI version](https://img.shields.io/pypi/v/rag-harness.svg)](https://pypi.org/project/rag-harness/)
 [![Python](https://img.shields.io/badge/python-3.10+-blue)]()
 [![License](https://img.shields.io/badge/license-MIT-green)]()
-[![CLI](https://img.shields.io/badge/interface-CLI-black)]()  
+[![CLI](https://img.shields.io/badge/interface-CLI-black)]()
+
+---
+
+## 🚀 Why RAG Harness?
+
+Evaluating RAG systems is messy.
+
+* Different formats everywhere ❌
+* No simple CLI tools ❌
+* Hard to compare outputs ❌
+* Most tools require APIs ❌
+
+👉 **RAG Harness fixes that.**
+
+**Just give your model output → get evaluation instantly.**
+
+---
+
 ## 📦 Install
 
 ```bash
@@ -32,119 +50,176 @@ pip install rag-harness
 
 ---
 
-## 🚀 Why this exists
-
-Evaluating RAG systems is messy.
-
-- Different metrics everywhere  
-- No standard CLI tools  
-- Hard to compare models  
-
-👉 **RAG Harness fixes that.**  
 ## 🎥 Demo
 
 ![Demo](docs/demo.gif)
 
-## ✨ Latest Update (v0.1.1)
-
-- Auto-detect & convert RAG outputs (LangChain, LlamaIndex, custom JSON)
-- Optional dataset support
-- Improved CLI UX
-
 ---
 
-## 🔥 Features
+## ✨ Features
 
-- ⚡ One-command RAG evaluation
-- 📊 Exact Match + F1 + Context metrics
-- 🧠 RAGAS-style scoring (no API required)
-- ⚔️ Compare multiple RAG systems
-- 📁 Works with JSONL / JSON / CSV
-
+* ⚡ One-command evaluation
+* 🧠 RAGAS-style scoring (no API required)
+* 🔍 Works with ANY JSON / JSONL / CSV
+* 🔄 Auto-detects ground truth
+* 📊 Exact Match + F1 + Fuzzy + Context metrics
+* ⚔️ Compare multiple RAG systems
+* 🧩 Handles messy real-world outputs (LangChain, LlamaIndex, custom)
 
 ---
 
 ## ⚡ Quick Start
 
 ```bash
-git clone https://github.com/yourname/rag-harness.git
-cd rag-harness
-python -m venv .venv
-.\.venv\Scripts\activate
-pip install -e .  
-```  
-## ▶️ Run Evaluation
-
-```bash
-rag-harness evaluate examples/dataset.jsonl examples/predictions_a.jsonl
+rag-harness evaluate output.json
 ```
 
-### Output
+---
+
+## ▶️ Run Evaluation
+
+### 1. Evaluate predictions only
+
+```bash
+rag-harness evaluate predictions.json
+```
+
+### 2. Full evaluation (recommended)
+
+```bash
+rag-harness evaluate predictions.json --dataset dataset.json
+```
+
+### 3. Compare systems
+
+```bash
+rag-harness compare dataset.json pred_a.json pred_b.json
+```
+
+---
+
+## 📊 Example Output
 
 ```
 📊 RAG Evaluation Summary
 
-Exact Match        0.5000
-F1 Score           0.8333
-Context Precision  1.0000
-Context Recall     1.0000
+Total             3
+F1 Score          0.34
+Fuzzy Score       0.60
+Context Recall    0.00
 
-🧠 RAGAS Score     0.9000
+🧠 RAGAS Score    0.47
 ```
+
+### 🧠 Insights
+
+* Answers are semantically correct but not precise
+* No context detected → retrieval not evaluated
+
+---
+
+## 📁 Supported Input Formats
+
+RAG Harness automatically detects:
+
+* answer, generated_answer, response
+* ground_truth, expected_answer
+* contexts, documents, source_documents
+
+Works with:
+
+* LangChain outputs
+* LlamaIndex outputs
+* Custom RAG pipelines
+* Benchmark JSON logs
+
+👉 No strict schema required.
+
+---
+
+## 🧾 Example Formats
+
+### Predictions + Ground Truth
+
+```json
+{
+  "generated_answer": "...",
+  "ground_truth": "...",
+  "contexts": ["..."]
+}
+```
+
+### Predictions only
+
+```json
+{
+  "answer": "...",
+  "contexts": ["..."]
+}
+```
+
+### ⚠️ Note
+
+* Without ground truth → limited evaluation
+* With ground truth → full evaluation
+
+---
+
+## 🧠 Scoring
+
+RAG Harness approximates RAGAS using:
+
+* Exact Match
+* F1 Score
+* Fuzzy Semantic Matching
+* Context Recall
+
+### ⚠️ Important
+
+* Fully deterministic (no API required)
+* Faster and reproducible
+* Scores may differ from LLM-based RAGAS
 
 ---
 
 ## ⚔️ Compare Systems
 
 ```bash
-rag-harness compare examples/dataset.jsonl examples/predictions_a.jsonl examples/predictions_b.jsonl
+rag-harness compare dataset.json pred_a.json pred_b.json
 ```
-
-### Output
 
 ```
 ⚔️ RAG Systems Comparison
 
-Metric              A        B
---------------------------------
-Exact Match         0.50     0.00
-F1 Score            0.83     0.00
-RAGAS Score         0.90     0.00
+Metric        A      B
+------------------------
+F1 Score      0.83   0.45
+RAGAS Score   0.72   0.51
 
 🏆 System A wins
 ```
 
 ---
 
-## 📁 Dataset Format
+## 🚧 Roadmap
 
-### Dataset
-
-```json
-{"id":"1","question":"Who wrote Hamlet?","answer":"William Shakespeare","contexts":["William Shakespeare wrote Hamlet."]}
-```
-
-### Predictions
-
-```json
-{"id":"1","answer":"Shakespeare","contexts":["William Shakespeare wrote Hamlet."]}
-```
+* [ ] LLM-based evaluation (user-provided API key)
+* [ ] Per-question analysis
+* [ ] HTML reports
+* [ ] Leaderboard mode
 
 ---
 
-## 🧠 RAGAS-style Scoring
+## 🤝 Contributing
 
-We provide a lightweight RAGAS-inspired score:
-
-```
-RAGAS = 0.6 * F1 + 0.4 * Context Recall
-```
-
-* No API keys required
-* Fast and deterministic
-* Extendable to real RAGAS later
+PRs, ideas, and improvements are welcome!
 
 ---
 
-## 🤝 Contributing  
-PRs, Ideas, Improvements welcome.
+## 👨‍💻 Author
+
+Built by Abhishek — focused on practical AI tooling for real-world systems.
+
+---
+
+⭐ If this helped you evaluate your RAG system, consider starring the repo!
