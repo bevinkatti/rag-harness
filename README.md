@@ -191,6 +191,7 @@ RAGAS Score   0.72   0.51
 
 * [ ] LLM-based evaluation (user-provided API key)
 * [ ] Leaderboard mode
+* [ ] Deep evaluation
 
 ---
 
@@ -206,4 +207,4 @@ Built by Abhishek Bevinkatti
 
 ---
 
-⭐ If this helped you evaluate your RAG system, consider starring the repo!
+If this helped you evaluate your RAG system, consider starring ⭐ the repo!
