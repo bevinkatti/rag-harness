@@ -32,6 +32,18 @@ def evaluate(
         exists=True,
         help="Optional dataset file"
     ),
+    verbose: bool = typer.Option(
+        False,
+        "--verbose",
+        "-v",
+        help="Show per-example evaluation results.",
+    ),
+    max_examples: int = typer.Option(
+        5,
+        "--max-examples",
+        min=1,
+        help="Maximum failed examples to display in verbose mode.",
+    ),
 ):
     """Evaluate a RAG system"""
 

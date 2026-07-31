@@ -18,7 +18,7 @@ def evaluate(dataset_path: Path | None, predictions_path: Path):
                 
                 Example(
                     id=p.id,
-                    question="",
+                    question="[Question unavailable]",
                     answer=p.ground_truth,
                     contexts=[]
                 )
@@ -37,11 +37,15 @@ def evaluate(dataset_path: Path | None, predictions_path: Path):
             rows.append(
                 ExampleScore(
                     id=ex.id,
+                    question=ex.question,
+                    expected_answer=ex.answer,
+                    predicted_answer="",
                     exact_match=0.0,
                     f1=0.0,
                     context_precision=0.0,
                     context_recall=0.0,
                     ragas_score=0.0,
+                    fuzzy=0.0,
                     missing=True,
                 )
             )
@@ -54,6 +58,9 @@ def evaluate(dataset_path: Path | None, predictions_path: Path):
         rows.append(
             ExampleScore(
                 id=ex.id,
+                question=ex.question,
+                expected_answer=ex.answer,
+                predicted_answer=pred.answer,
                 exact_match=exact_match(pred.answer, ex.answer),
                 f1=f1_score(pred.answer, ex.answer),
                 context_precision=context_precision(pred.contexts, ex.contexts),
@@ -63,6 +70,7 @@ def evaluate(dataset_path: Path | None, predictions_path: Path):
                 missing=False,
             )
         )
+        
     if not dataset:
         return [], AggregateScore(
             total=len(predictions),
