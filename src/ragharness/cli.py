@@ -82,9 +82,44 @@ def evaluate(
     ragas_table.add_row("RAGAS Score", f"{agg.ragas_score:.4f}")
 
     console.print(ragas_table)
+    console.print()
+
+    label, color = performance_label(agg.f1)
+
+    console.print("[bold]Evaluation Summary[/bold]")
+
+    console.print(
+        f"Matched predictions : [green]{agg.matched}/{agg.total}[/green]"
+    )
+
+    console.print(
+        f"Overall quality     : [{color}]{label}[/{color}]"
+    )
+
+    if agg.context_precision < 0.70:
+        console.print(
+            "[yellow]⚠ Context precision could be improved.[/yellow]"
+        )
+
+    if agg.context_recall < 0.70:
+        console.print(
+            "[yellow]⚠ Context recall is relatively low.[/yellow]"
+        )
+
+    if agg.exact_match == 1.0:
+        console.print(
+            "[green]✓ Perfect exact match.[/green]"
+        )
 
 
-
+def performance_label(score: float) -> tuple[str, str]:
+    if score >= 0.90:
+        return "Excellent", "green"
+    elif score >= 0.75:
+        return "Good", "cyan"
+    elif score >= 0.60:
+        return "Fair", "yellow"
+    return "Needs Improvement", "red"
 # -------------------------------
 # COMPARE COMMAND (ADD HERE)
 # -------------------------------
