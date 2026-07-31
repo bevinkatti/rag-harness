@@ -3,6 +3,8 @@ import typer
 from pathlib import Path
 from rich.console import Console
 from rich.table import Table
+from rich.panel import Panel
+from rich.text import Text
 from .io import load_predictions
 from .compare import compare_models
 from .runner import evaluate as run_evaluate
@@ -122,6 +124,58 @@ def evaluate(
         console.print(
             "[green]✓ Perfect exact match.[/green]"
         )
+        
+    if verbose:
+        for row in rows:
+            if row.missing or row.exact_match < 1.0:
+                #new
+                details = Text()
+
+                details.append("❓ Question\n", style="bold cyan")
+                details.append(f"{row.question}\n\n")
+
+                details.append("🎯 Reference Answer\n", style="bold green")
+                details.append(f"{row.expected_answer}\n\n")
+
+                details.append("🤖 Model Answer\n", style="bold yellow")
+                details.append(
+                    f"{row.predicted_answer or '<missing prediction>'}"
+                )
+
+                console.print(
+                    Panel(
+                        details,
+                        title=f"Failed Example (ID: {row.id})",
+                        border_style="red",
+                        expand=False,
+                    )
+                )
+                #new-end
+
+                console.print()
+
+                console.print(f"Exact Match      : {row.exact_match:.2f}")
+                console.print(f"F1 Score         : {row.f1:.2f}")
+                console.print(f"Fuzzy Similarity : {row.fuzzy * 100:.0f}%")
+                console.print(f"Context Precision: {row.context_precision:.2f}")
+                console.print(f"Context Recall   : {row.context_recall:.2f}")
+                console.print(f"RAGAS Score      : {row.ragas_score:.2f}")
+                console.print()
+                
+                if row.exact_match == 1:
+                    verdict = "[bold green]🟢 Correct[/bold green]"
+                elif row.f1 >= 0.6:
+                    verdict = "[bold yellow]🟡 Mostly Correct[/bold yellow]"
+                else:
+                    verdict = "[bold red]🔴 Incorrect[/bold red]"
+
+                console.print(f"[bold]Overall Verdict:[/bold] {verdict}")
+                console.print()
+                console.print("[bold cyan]💡 Analysis[/bold cyan]")
+                for message in analyze_failure(row):
+                    console.print(f"• {message}")
+
+                break
 
 
 def performance_label(score: float) -> tuple[str, str]:
@@ -132,6 +186,70 @@ def performance_label(score: float) -> tuple[str, str]:
     elif score >= 0.60:
         return "Fair", "yellow"
     return "Needs Improvement", "red"
+
+def analyze_failure(row) -> list[str]:
+    """
+    Generate human-readable insights from evaluation metrics.
+    Uses simple heuristics (no LLM/API required).
+    """
+
+    analysis = []
+
+    # Exact match failed but answer is still quite similar
+    if row.exact_match == 0 and row.f1 >= 0.6:
+        analysis.append(
+            "⚠ Exact wording differs, but the answer is mostly correct."
+        )
+
+    # Completely different answer
+    if row.f1 == 0 and row.fuzzy < 0.30:
+        analysis.append(
+            "❌ Prediction is very different from the expected answer."
+        )
+
+    # High lexical similarity
+    if row.fuzzy >= 0.90:
+        analysis.append(
+            "✅ High lexical similarity to the expected answer."
+        )
+
+    # Context quality
+    if row.context_precision >= 0.80:
+        analysis.append(
+            "✅ Retrieved context appears relevant."
+        )
+    elif row.context_precision < 0.50:
+        analysis.append(
+            "⚠ Retrieved context contains irrelevant information."
+        )
+
+    # Context completeness
+    if row.context_recall >= 0.80:
+        analysis.append(
+            "✅ Retrieved context appears sufficiently complete."
+        )
+    elif row.context_recall < 0.50:
+        analysis.append(
+            "⚠ Important context may be missing."
+        )
+
+    # Overall RAG pipeline quality
+    if row.ragas_score >= 0.80:
+        analysis.append(
+            "🎯 Overall retrieval and answer quality are strong."
+        )
+    elif row.ragas_score < 0.40:
+        analysis.append(
+            "⚠ Overall RAG pipeline quality is poor for this example."
+        )
+
+    # Fallback
+    if not analysis:
+        analysis.append(
+            "ℹ No obvious issues detected from the available metrics."
+        )
+
+    return analysis
 # -------------------------------
 # COMPARE COMMAND (ADD HERE)
 # -------------------------------
