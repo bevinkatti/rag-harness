@@ -1,6 +1,6 @@
 # ⚡ RAG Harness
 
-> Evaluate any RAG system in seconds — no strict format.
+> Evaluate RAG systems in seconds — fast, deterministic, and without requiring an API key.
 
 [![PyPI version](https://img.shields.io/pypi/v/rag-harness.svg)](https://pypi.org/project/rag-harness/)
 [![Python](https://img.shields.io/badge/python-3.10+-blue)]()
@@ -9,19 +9,25 @@
 [![PyPI Downloads](https://static.pepy.tech/personalized-badge/rag-harness?period=total&units=INTERNATIONAL_SYSTEM&left_color=GREY&right_color=GREEN&left_text=downloads)](https://pepy.tech/projects/rag-harness)
 ---
 
-## 🚀 Why RAG Harness?
+Evaluating RAG systems shouldn't require paid APIs, rigid schemas, or complicated evaluation pipelines.
 
-Evaluating RAG systems is messy.
+RAG Harness is a lightweight CLI that evaluates your RAG outputs using deterministic metrics, automatically detects common dataset formats, and provides human-readable diagnostics to help you understand why your system succeeds or fails.
 
-* Different formats everywhere ❌
-* No simple CLI tools ❌
-* Hard to compare outputs ❌
-* Most tools require APIs ❌
+### Why choose RAG Harness?
 
-👉 **RAG Harness fixes that.**
+- No API key required
+- Fully deterministic and reproducible
+- Works offline
+- Works with common RAG formats automatically
+- Great for local development and CI
 
-**Just give your model output → get evaluation instantly.**
+👉**Just give your model output → get evaluation instantly.**  
   
+  ✓ Offline  
+  ✓ Deterministic  
+  ✓ CI-friendly  
+  ✓ No API  
+
 ---
 
 ## 📦 Install
@@ -53,7 +59,10 @@ A score of **~0.5** in RAG Harness often corresponds to **reasonably good semant
 
 * ⚡ One-command evaluation
 * 🧠 RAGAS-style scoring (no API required)
-* 🔍 Works with ANY JSON / JSONL / CSV
+* 🔍 Works with most JSON / JSONL / CSV RAG outputs
+* 📋 Rich CLI summaries
+* 💡 Human-readable diagnostics
+* 🔥 Top Failed Examples
 * 🔄 Auto-detects ground truth
 * 📊 Exact Match + F1 + Fuzzy + Context metrics
 * ⚔️ Compare multiple RAG systems
@@ -61,25 +70,37 @@ A score of **~0.5** in RAG Harness often corresponds to **reasonably good semant
 
 ---
 
-
-## ▶️ Run Evaluation ⚡ 
+## ▶️ Quick Start
 
 ### 1. Evaluate predictions only
 
 ```bash
-rag-harness evaluate predictions.json
+rag-harness evaluate examples/predictions_a.jsonl
 ```
 
 ### 2. Full evaluation (recommended)
 
 ```bash
-rag-harness evaluate predictions.json --dataset dataset.json
+rag-harness evaluate examples/predictions_a.jsonl --dataset examples/dataset.jsonl
 ```
 
-### 3. Compare systems
+### 3. Detailed diagnostics (verbose mode)
 
 ```bash
-rag-harness compare dataset.json pred_a.json pred_b.json
+rag-harness evaluate examples/predictions_a.jsonl --dataset examples/dataset.jsonl --verbose
+```
+
+Displays:
+
+* 📊 Rich evaluation summary
+* 💡 Human-readable diagnostics
+* 🔥 Top Failed Examples
+* 🟢 Overall verdict for each failed example
+
+### 4. Compare two RAG systems
+
+```bash
+rag-harness compare examples/dataset.jsonl examples/predictions_a.jsonl examples/predictions_b.jsonl
 ```
 
 ---
@@ -189,9 +210,21 @@ RAGAS Score   0.72   0.51
 
 ## 🚧 Roadmap
 
-* [ ] LLM-based evaluation (user-provided API key)
-* [ ] Leaderboard mode
-* [ ] Deep evaluation
+### Completed
+
+- ✅ Rich CLI output
+- ✅ Human-readable diagnostics
+- ✅ Overall verdicts
+- ✅ Top Failed Examples
+- ✅ Compare multiple systems
+
+### Coming Soon
+
+- ⏳ Rich metrics dashboard
+- ⏳ HTML reports
+- ⏳ Dataset Doctor
+- ⏳ CSV / Markdown export
+- ⏳ Optional LLM evaluation  
 
 ---
 
