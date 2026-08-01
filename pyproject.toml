@@ -4,11 +4,11 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "rag-harness"
-version = "0.1.2"
-description = "⚡ CLI tool to evaluate and compare RAG systems."
+version = "0.2.0"
+description = "CLI tool for evaluating and comparing RAG systems."
 readme = "README.md"
 requires-python = ">=3.10"
-license = { text = "MIT" }
+license = "MIT"
 
 authors = [
   { name = "Abhishek Bevinkatti" }
