@@ -17,7 +17,7 @@ RAG Harness is a lightweight CLI that evaluates your RAG outputs using determini
 
 - No API key required
 - Fully deterministic and reproducible
-- Works offline
+- Works offline and fast
 - Works with common RAG formats automatically
 - Great for local development and CI
 
