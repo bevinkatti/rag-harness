@@ -1,15 +1,13 @@
 import re
 from collections import Counter
-
-import re
-from rapidfuzz.fuzz import ratio
 from rapidfuzz.fuzz import token_set_ratio
+
 
 # ---------- TEXT NORMALIZATION ----------
 def normalize(text: str) -> str:
     text = text.lower().strip()
     text = re.sub(r"[^a-z0-9\s]", " ", text)
-    text = re.sub(r"\b(a|an|the)\b", " ", text) #commented
+    text = re.sub(r"\b(a|an|the)\b", " ", text)  # commented
     text = re.sub(r"\s+", " ", text)
     return text.strip()
 
@@ -85,6 +83,7 @@ def context_recall(pred_ctx: list[str], gold_ctx: list[str]) -> float:
 
     overlap = len(pred_set & gold_set)
     return overlap / len(gold_set)
+
 
 def ragas_score(pred: str, gt: str, pred_ctx: list[str], gt_ctx: list[str]) -> float:
     f1 = f1_score(pred, gt)

@@ -19,6 +19,7 @@ class Prediction:
     metadata: dict[str, Any] = field(default_factory=dict)
     ground_truth: str = ""
 
+
 @dataclass
 class ExampleScore:
     id: str
@@ -35,9 +36,9 @@ class ExampleScore:
     context_recall: float = 0.0
     ragas_score: float = 0.0
     fuzzy: float = 0.0
-    
+
     # Status
-    missing: bool = False 
+    missing: bool = False
 
 
 @dataclass

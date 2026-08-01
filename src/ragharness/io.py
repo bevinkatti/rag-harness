@@ -18,7 +18,7 @@ def _parse_contexts(value):
             parsed = json.loads(value)
             if isinstance(parsed, list):
                 return [str(x).strip() for x in parsed]
-        except:
+        except json.JSONDecodeError:
             pass
 
         # fallback: split by ||
@@ -117,9 +117,7 @@ def convert_row(row: dict, idx: int):
                         contexts.append(v.strip())
                     elif isinstance(v, dict):
                         contexts.append(
-                            v.get("page_content")
-                            or v.get("text")
-                            or str(v)
+                            v.get("page_content") or v.get("text") or str(v)
                         )
 
             elif isinstance(val, str):
@@ -142,7 +140,7 @@ def load_predictions(path: Path) -> list[Prediction]:
 
     if suffix == ".jsonl":
         rows = load_jsonl(path)
-        
+
     elif suffix == ".json":
         data = json.load(open(path))
 
@@ -155,11 +153,10 @@ def load_predictions(path: Path) -> list[Prediction]:
             rows = data
         else:
             raise ValueError("Unsupported JSON format")
-    
-        
+
     elif suffix == ".csv":
         rows = list(csv.DictReader(open(path)))
-    
+
     else:
         raise ValueError("Unsupported format")
 
